@@ -14,10 +14,11 @@ class Cita {
 	// Métodos
 	crearCita(listaCitas) {
 		// Primero vamos a pedir los datos del usuario
+		let dniUsu = prompt("Introduzca el DNI del usuario: ")
 		let nombreUsu = prompt("Introduzca el nombre del usuario: ")
 		let apellUsu = prompt("Introduzca los apellidos del usuario: ");
 		let telfUsu = prompt("Introduzca el telefono del usuario: ");
-		let objUsu = new Usuario(nombreUsu, apellUsu, telfUsu);
+		let objUsu = new Usuario(dniUsu, nombreUsu, apellUsu, telfUsu);
 
 		// Ahora pedimos los datos del medico
 		let nombreMedico = prompt("Introduzca el nombre del medico: ");
@@ -25,7 +26,7 @@ class Cita {
 		let telfMedico = prompt("Introduzca el telefono del medico: ");
 		let objMedico = new Medico(nombreMedico, apellMedico, telfMedico);
 
-		// Ahora pedimos los datos de la consulta
+		// Ahora pedimos los datos de la consulta y centro medico
 		let nombreCentroMedico = prompt("Introduzca el nombre del centro medico: ")
 		let ciudadCentroMedico = prompt("Introduzca la ciudad del centro medico: ")
 		let objCentroMedico = new CentroMedico(nombreCentroMedico, ciudadCentroMedico);
@@ -42,27 +43,25 @@ class Cita {
 
 		return objCita;
 	}
-
-	calculaId(listaCitas) {
-		let maxId = 0;
-		for (let i = 0; i < listaCitas.length; i++) {
-			if (listaCitas[i].id > maxId) {
-				maxId = listaCitas[i].id;
-			}
-		}
-
-		return maxId + 1;
+	
+	mostrar(){
+		return "[ID cita: "+ this.id+ "; " + this.usuario.mostrar() + "; "+ this.medico.mostrar() +"; " + this.consulta.mostrar() + "; Fecha: " + this.fecha.toLocaleDateString() +"]";
 	}
 }
 
 class Usuario {
 	// Constructor
-	constructor(nombre, apellidos, telefono) {
+	constructor(dniUsu, nombre, apellidos, telefono) {
+		this.dniUsu = dniUsu;
 		this.nombre = nombre;
 		this.apellidos = apellidos;
 		this.telefono = telefono;
 	}
-	// Métodos
+	
+	// Metodos
+	mostrar(){
+		return "DNI Usu: "+ this.dniUsu +"; Nombre Usu: " + this.nombre + "; Apellidos Usu: " + this.apellidos + "; Telf Usu: "+this.telefono;
+	}
 }
 
 class Medico {
@@ -72,7 +71,11 @@ class Medico {
 		this.apellidos = apellidos;
 		this.telefono = telefono;
 	}
-	// Métodos
+	
+	// Metodos
+	mostrar(){
+		return "Nombre Med: " + this.nombre + "; Apellidos Med: " + this.apellidos + "; Telf Med: "+this.telefono;
+	}
 }
 
 class CentroMedico {
@@ -81,7 +84,11 @@ class CentroMedico {
 		this.nombreCentro = nombreCentro;
 		this.ciudad = ciudad;
 	}
-	// Métodos
+	
+	// Metodos
+	mostrar(){
+		return "Nombre Centro: "+ this.nombreCentro +"; Ciudad Centro: " + this.ciudad;
+	}
 }
 
 class Consulta {
@@ -90,9 +97,17 @@ class Consulta {
 		this.numConsulta = numConsulta;
 		this.centroMedico = centroMedico;
 	}
+	
+	// Metodos
+	mostrar(){
+		return "Numero Consulta: "+ this.numConsulta +"; " + this.centroMedico.mostrar();
+	}
 }
 
-function calculaId(listaCitas) {
+/**
+ * Funcion que comprueba cual es el mayor id añadido a la lista y le suma 1
+ */
+function calculaId(listaCitas){
 	let maxId = 0;
 	for (let i = 0; i < listaCitas.length; i++) {
 		if (listaCitas[i].id > maxId) {
@@ -107,26 +122,61 @@ function calculaId(listaCitas) {
 
 // Lista para guardar las citas Medicas
 let listaCitas = [];
+let listaAuxiliar = []; // Lista auxiliar
 
-// Pedimos una opcion
-let opcion = Number(prompt("1. Crear cita medica\n2. Borrar cita medica\n 3. Listar por usuario\n 0. Salir"))
+// Instanciamos un objeto Cita
 let cita = new Cita();
-while (opcion != 0) {
-	switch (opcion) {
-		case 1:
-			// Crear cita medica
-			listaCitas.push(cita.crearCita(listaCitas));
-			break;
-		case 2:
-			// Borrar cita médica
-			// Borraremos una cita por el id
-			break;
-		case 3:
-			// Listar citas por usuario
-			break;
-	}
 
-	opcion = Number(prompt("1. Crear cita medica\n2. Borrar cita medica\n 3. Listar por usuario\n 0. Salir"))
+/**
+ * Funcion para crear cita medica
+ */
+function crearCita(){
+	listaCitas.push(cita.crearCita(listaCitas));
 }
-console.log(listaCitas[0]);
-console.log(listaCitas[1]);
+
+/**
+ * Funcion para borrar cita medica
+ * Se borrara la cita segun el id de la cita medica
+ */
+function borrarCita(){
+	// Pedimos el id de la cita medica a borrar
+	let idCita = prompt("Introduzca el id de la cita medica a borrar: ");
+	
+	// Comprobamos si esta la cita en la lista
+	// Si no esta mostraremos una alerta
+	let borrado = false;
+	for(let i=0; i < listaCitas.length; i++){
+		if(listaCitas[i].id == idCita){
+			listaCitas.splice(i,1);
+			borrado = true;
+			break;
+		}
+	}
+	
+	if(!borrado)
+		alert("No existe ninguna cita medica con el ID: " + idCita);
+}
+
+/**
+ * Funcion para listar por el usuario pedido
+ */
+function listarPorUsuario(){
+	// Pedimos el DNI del usuario
+	let dniListar = prompt("Introduzca el DNI del usuario a listar: ")
+	// Buscamos el DNI pedido en la lista
+	for(let i =0; i < listaCitas.length; i++){
+		if(listaCitas[i].usuario.dniUsu == dniListar){
+			// Cuando encuentre al usuario guardaremos en una lista auxiliar el registro
+			listaAuxiliar.push(listaCitas[i]);
+		}
+	}
+	
+	// Una vez que termine el bucle solo tendríamos que mostrar por pantalla la lista auxiliar
+	document.getElementById("contenedor").innerHTML = "";
+	for(let i = 0; i < listaAuxiliar.length; i++){
+		document.getElementById("contenedor").innerHTML += "<br>"+listaAuxiliar[i].mostrar();
+	}
+	
+	// Vaciamos la lista auxiliar
+	listaAuxiliar = [];
+}
